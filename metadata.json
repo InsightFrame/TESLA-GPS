@@ -1,0 +1,7 @@
+{
+  "name": "Tesla-Apple GPS CarPlay",
+  "description": "A sophisticated navigation interface combining Tesla's minimalist layout with Apple Maps' elegant visual style, featuring Gemini-powered smart destination search.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
