@@ -29,9 +29,8 @@ const App: React.FC = () => {
   const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
-    // Verificação de segurança para geolocalização
     if (!navigator.geolocation) {
-        console.warn("Geolocalização não suportada neste navegador.");
+        console.warn("Geolocalização não suportada.");
         return;
     }
 
@@ -52,9 +51,7 @@ const App: React.FC = () => {
     return () => {
       navigator.geolocation.clearWatch(watchId);
       if (recognitionRef.current) {
-          try {
-             recognitionRef.current.stop();
-          } catch(e) {}
+          try { recognitionRef.current.stop(); } catch(e) {}
       }
     };
   }, []);
@@ -80,7 +77,6 @@ const App: React.FC = () => {
             setIsListening(true);
             setVoiceFeedback("Diga o destino...");
             
-            // Timeout para esperar o usuário falar o comando após a "wake word"
             setTimeout(() => {
                 const parts = transcript.split('peugeot');
                 const command = parts[parts.length - 1]?.trim();
@@ -92,18 +88,13 @@ const App: React.FC = () => {
         };
 
         recognition.onend = () => {
-            // Reinicia automaticamente para escutar "Peugeot" novamente
-            try {
-                recognition.start();
-            } catch (e) {
-                // Ignora erro se já estiver iniciado
-            }
+            try { recognition.start(); } catch (e) {}
         };
         
         recognition.start();
         recognitionRef.current = recognition;
     } catch (error) {
-        console.error("Erro ao iniciar reconhecimento de voz:", error);
+        console.error("Erro voz:", error);
     }
   };
 
@@ -116,7 +107,7 @@ const App: React.FC = () => {
       const destName = response.text?.trim();
       if (destName && destName !== "NONE") {
         handleSearch(destName);
-        setVoiceFeedback("Escolha o destino na barra lateral");
+        setVoiceFeedback("Resultados encontrados!");
       }
     } catch (err) {
       setVoiceFeedback("Erro ao processar voz.");
@@ -130,10 +121,7 @@ const App: React.FC = () => {
   };
 
   const handleSearch = (query: string) => {
-    if (!query || typeof google === 'undefined') {
-        console.warn("Google Maps API não carregada ainda.");
-        return;
-    }
+    if (!query || typeof google === 'undefined') return;
     
     setIsSearching(true);
     const service = new google.maps.places.PlacesService(document.createElement('div'));
@@ -141,7 +129,7 @@ const App: React.FC = () => {
     const request = {
       query: query,
       location: currentLocation ? new google.maps.LatLng(currentLocation.lat, currentLocation.lng) : undefined,
-      radius: 10000,
+      radius: 15000,
       rankBy: google.maps.places.RankBy.PROMINENCE
     };
 
@@ -168,7 +156,7 @@ const App: React.FC = () => {
             distance: distanceStr,
             distanceValue: distanceValue,
             duration: "Calculando...",
-            batteryUsage: 4
+            batteryUsage: Math.floor(Math.random() * 5) + 2
           };
         })
         .sort((a: any, b: any) => a.distanceValue - b.distanceValue);
@@ -182,13 +170,12 @@ const App: React.FC = () => {
 
   const selectDestination = (dest: Destination) => {
     setSelectedDestination(dest);
-    setSearchResults([]);
+    setSearchResults([]); // Limpa a lista ao selecionar para focar na rota
     setIsListening(false);
   };
 
   const handleCancelNavigation = () => {
       setSelectedDestination(undefined);
-      // Limpa os resultados para voltar ao estado inicial limpo
       setSearchResults([]);
   };
 
@@ -203,7 +190,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-row h-screen w-screen overflow-hidden bg-black text-white selection:bg-blue-500/30">
+    <div className="flex flex-row h-screen w-screen overflow-hidden bg-[#05070a] text-white selection:bg-blue-500/30">
       <style>{`
         @keyframes flow-bar {
           0% { background-position: 0% 50%; }
@@ -211,13 +198,12 @@ const App: React.FC = () => {
           100% { background-position: 0% 50%; }
         }
         .voice-glow-bar {
-          background: linear-gradient(90deg, #00c2ff, #22c55e, #ff0055, #00c2ff);
+          background: linear-gradient(90deg, #3b82f6, #10b981, #ef4444, #3b82f6);
           background-size: 300% 300%;
           animation: flow-bar 2s infinite linear;
         }
       `}</style>
 
-      {/* Sidebar com largura responsiva */}
       <Sidebar 
         onSearch={handleSearch} 
         searchResults={searchResults}
@@ -241,27 +227,27 @@ const App: React.FC = () => {
             />
 
             {isListening && (
-                <div className="absolute top-0 left-0 w-full z-[100] h-20 md:h-28 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex items-start justify-center pt-4 md:pt-8 animate-in fade-in slide-in-from-top duration-700 pointer-events-none">
-                    <div className="flex items-center space-x-4 bg-white/5 backdrop-blur-3xl px-6 py-3 md:px-10 md:py-5 rounded-full border border-white/10 shadow-2xl">
+                <div className="absolute top-0 left-0 w-full z-[100] h-24 md:h-32 bg-gradient-to-b from-black/80 via-black/20 to-transparent flex items-start justify-center pt-8 animate-in fade-in slide-in-from-top duration-700 pointer-events-none">
+                    <div className="flex items-center space-x-4 bg-white/10 backdrop-blur-3xl px-8 py-4 rounded-full border border-white/10 shadow-2xl">
                         <div className="relative">
-                            <Volume2 className="w-5 h-5 md:w-6 md:h-6 text-[#00c2ff] animate-pulse" />
+                            <Volume2 className="w-6 h-6 text-blue-400 animate-pulse" />
                         </div>
-                        <span className="text-white font-black tracking-tight text-sm md:text-xl italic uppercase truncate max-w-[200px] md:max-w-none">
-                            {voiceFeedback || "Aguardando comando..."}
+                        <span className="text-white font-black tracking-tight text-lg md:text-xl italic uppercase">
+                            {voiceFeedback || "Diga o seu destino..."}
                         </span>
-                        <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-yellow-400 animate-bounce" />
+                        <Sparkles className="w-5 h-5 text-blue-300 animate-bounce" />
                     </div>
                 </div>
             )}
 
             {isListening && (
-                <div className="absolute bottom-0 left-0 w-full z-[110] h-1.5 md:h-2.5 voice-glow-bar shadow-[0_-15px_40px_rgba(0,194,255,0.5)] animate-in slide-in-from-bottom duration-500"></div>
+                <div className="absolute bottom-0 left-0 w-full z-[110] h-2 voice-glow-bar shadow-[0_-10px_30px_rgba(59,130,246,0.4)] animate-in slide-in-from-bottom duration-500"></div>
             )}
 
             {selectedDestination && (
               <NavigationOverlay 
-                step={{ instruction: `Siga para ${selectedDestination.name}`, distance: "-->", icon: "straight" }} 
-                nextStep={`Chegada em ${selectedDestination.duration}`}
+                step={{ instruction: `A caminhar para ${selectedDestination.name}`, distance: "CALC", icon: "straight" }} 
+                nextStep={`${selectedDestination.duration} restantes`}
               />
             )}
 
@@ -270,11 +256,12 @@ const App: React.FC = () => {
               onCancel={handleCancelNavigation} 
             />
 
-            <div className="absolute top-4 right-4 md:top-6 md:right-6 z-50 pointer-events-none">
-              <div className="px-4 py-2 md:px-6 md:py-3 bg-black/60 backdrop-blur-2xl border border-white/10 rounded-full text-[10px] md:text-xs font-black text-white/80 shadow-2xl flex items-center space-x-3">
-                  <div className="w-2 h-2 md:w-2.5 md:h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
-                  <span className="tracking-widest uppercase hidden md:inline">GPS ONLINE • {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                  <span className="tracking-widest uppercase md:hidden">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            <div className="absolute top-6 right-6 z-50 pointer-events-none">
+              <div className="px-5 py-2.5 bg-black/60 backdrop-blur-3xl border border-white/10 rounded-full text-xs font-black text-white shadow-2xl flex items-center space-x-3">
+                  <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_12px_rgba(34,197,94,1)]"></div>
+                  <span className="tracking-widest uppercase font-mono">
+                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
               </div>
             </div>
           </>
