@@ -8,6 +8,7 @@ export interface Destination {
   batteryUsage?: number;
   lat?: number;
   lng?: number;
+  distanceValue?: number;
 }
 
 export interface NavigationStep {
@@ -27,3 +28,5 @@ export interface Coordinates {
   lng: number;
   heading?: number | null;
 }
+
+export type DisplayMode = 'standard' | 'fsd';

@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Battery, Clock, Navigation } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Clock, Navigation } from 'lucide-react';
 import { Destination } from '../types';
 
 interface BottomInfoProps {
@@ -9,41 +9,70 @@ interface BottomInfoProps {
 }
 
 const BottomInfo: React.FC<BottomInfoProps> = ({ destination, onCancel }) => {
+  const [arrivalTime, setArrivalTime] = useState<string>("--:--");
+
+  useEffect(() => {
+    if (!destination || !destination.duration) return;
+
+    const calculateArrival = () => {
+      const now = new Date();
+      let totalMinutes = 0;
+
+      // Parsing simples para formatos como "1 h 20 min" ou "15 mins"
+      const durationStr = destination.duration.toLowerCase();
+      
+      const hoursMatch = durationStr.match(/(\d+)\s*h/);
+      const minsMatch = durationStr.match(/(\d+)\s*min/);
+
+      if (hoursMatch) totalMinutes += parseInt(hoursMatch[1]) * 60;
+      if (minsMatch) totalMinutes += parseInt(minsMatch[1]);
+      
+      // Se não deu match nos padrões acima (ex: apenas "25 mins"), tenta um fallback numérico simples
+      if (!hoursMatch && !minsMatch) {
+        const fallbackMatch = durationStr.match(/(\d+)/);
+        if (fallbackMatch) totalMinutes += parseInt(fallbackMatch[1]);
+      }
+
+      const arrivalDate = new Date(now.getTime() + totalMinutes * 60000);
+      setArrivalTime(arrivalDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    };
+
+    calculateArrival();
+    // Atualiza a cada minuto para manter o sincronismo com o relógio atual
+    const interval = setInterval(calculateArrival, 30000);
+    return () => clearInterval(interval);
+  }, [destination]);
+
   if (!destination) return null;
 
   return (
-    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-full max-w-sm md:max-w-xl px-4 z-40">
-      <div className="bg-black/80 backdrop-blur-2xl border border-white/10 rounded-[1.5rem] md:rounded-[2.5rem] p-3 md:p-6 shadow-2xl flex items-center justify-between">
-        <div className="flex items-center space-x-3 md:space-x-6">
-          <div className="flex flex-col">
-            <div className="text-[8px] md:text-sm font-bold text-white/40 uppercase tracking-widest hidden md:block">Chegada</div>
+    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-full max-w-xl px-6 z-50 animate-in slide-in-from-bottom duration-500">
+      <div className="bg-black/80 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-6 shadow-2xl flex items-center justify-between">
+        <div className="flex items-center space-x-6">
+          <div className="flex flex-col min-w-[100px]">
+            <div className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Chegada</div>
             <div className="flex items-baseline space-x-1">
-              <span className="text-xl md:text-4xl font-bold text-white tracking-tight">14:42</span>
-              <span className="text-xs md:text-lg font-semibold text-white/60">pm</span>
+              <span className="text-4xl font-black text-white tracking-tighter">{arrivalTime}</span>
             </div>
           </div>
           
-          <div className="h-6 md:h-10 w-[1px] bg-white/10" />
+          <div className="h-10 w-[1px] bg-white/10" />
 
-          <div className="flex items-center space-x-3 md:space-x-6">
+          <div className="flex items-center space-x-8">
             <div className="flex flex-col items-center">
-              <Clock className="w-3 h-3 md:w-5 md:h-5 text-blue-400 mb-0.5 md:mb-1" />
-              <span className="text-white font-bold text-xs md:text-lg">{destination.duration}</span>
+              <Clock className="w-5 h-5 text-blue-400 mb-1" />
+              <span className="text-white font-bold text-lg">{destination.duration}</span>
             </div>
             <div className="flex flex-col items-center">
-              <Navigation className="w-3 h-3 md:w-5 md:h-5 text-green-400 mb-0.5 md:mb-1" />
-              <span className="text-white font-bold text-xs md:text-lg truncate max-w-[40px] md:max-w-none">{destination.distance}</span>
-            </div>
-            <div className="flex flex-col items-center mobile-hide">
-              <Battery className="w-5 h-5 text-yellow-400 mb-1" />
-              <span className="text-white font-bold text-lg">63%</span>
+              <Navigation className="w-5 h-5 text-green-400 mb-1" />
+              <span className="text-white font-bold text-lg">{destination.distance}</span>
             </div>
           </div>
         </div>
 
         <button 
           onClick={onCancel}
-          className="bg-red-500 hover:bg-red-600 transition-all text-white font-bold px-4 md:px-8 py-2 md:py-4 rounded-xl md:rounded-3xl shadow-lg active:scale-95 text-xs md:text-base ml-2"
+          className="bg-red-500/90 hover:bg-red-600 transition-all text-white font-black uppercase tracking-widest text-xs px-8 py-5 rounded-3xl shadow-xl shadow-red-900/20 active:scale-95"
         >
           Parar
         </button>

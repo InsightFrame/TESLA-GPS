@@ -1,7 +1,8 @@
 {
-  "name": "Tesla-Apple GPS CarPlay",
-  "description": "A sophisticated navigation interface combining Tesla's minimalist layout with Apple Maps' elegant visual style, featuring Gemini-powered smart destination search.",
+  "name": "Peugeot E2008 GT CarPlay",
+  "description": "A sophisticated navigation interface for Peugeot E2008 GT featuring voice activation and Tesla-Apple aesthetics.",
   "requestFramePermissions": [
-    "geolocation"
+    "geolocation",
+    "microphone"
   ]
 }

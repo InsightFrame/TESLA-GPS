@@ -41,7 +41,7 @@ const obterLocalizacaoGPSDeclaration: FunctionDeclaration = {
 
 export const getSmartDestinations = async (query: string, location?: Coordinates): Promise<Destination[]> => {
   try {
-    // Explicitly typing response to fix 'unknown' type error when calling ai.models.generateContent
+    // Adding explicit type to fix "Property 'text' does not exist on type 'unknown'"
     const response: GenerateContentResponse = await callWithRetry(() => ai.models.generateContent({
       model: "gemini-3-pro-preview",
       contents: `User Location: Lat ${location?.lat || 0}, Lng ${location?.lng || 0}. Query: "${query}".`,
@@ -78,7 +78,7 @@ export const getSmartDestinations = async (query: string, location?: Coordinates
  */
 export const askAssistant = async (query: string, history: any[] = []): Promise<GenerateContentResponse> => {
   try {
-    // Explicitly typing response to fix 'unknown' type error when calling ai.models.generateContent
+    // Adding explicit type to fix "Property 'text' does not exist on type 'unknown'"
     const response: GenerateContentResponse = await callWithRetry(() => ai.models.generateContent({
       model: "gemini-3-pro-preview",
       contents: [...history, { role: 'user', parts: [{ text: query }] }],

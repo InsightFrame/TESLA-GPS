@@ -3,10 +3,11 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tesla-Apple GPS CarPlay</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Maps API - Usando v=beta e bibliotecas adicionais para maior compatibilidade -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAw-byjI8a4ms7BcM72_f2El_WUyTMDEyQ&libraries=geometry,places,drawing&v=beta"></script>
     <style>
         body {
@@ -15,16 +16,17 @@
             padding: 0;
             overflow: hidden;
             background-color: #000;
-            overscroll-behavior-y: contain;
         }
+        /* Esconder UI nativa para estética OEM de carro */
         .gm-style-cc, .gm-svpc, .gm-style-mtc, .gm-fullscreen-control, .gm-bundled-control-on-bottom, .gmnoprint {
             display: none !important;
         }
         .gm-style {
             filter: grayscale(0.1) brightness(0.95) contrast(1.1);
         }
+        /* Custom scrollbar */
         ::-webkit-scrollbar {
-            width: 4px;
+            width: 6px;
         }
         ::-webkit-scrollbar-track {
             background: transparent;
@@ -32,34 +34,6 @@
         ::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
-        }
-
-        /* Orientação Guard */
-        #orientation-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 9999;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: white;
-            padding: 2rem;
-        }
-
-        @media (orientation: portrait) and (max-width: 1024px) {
-            #orientation-overlay {
-                display: flex;
-            }
-        }
-        
-        /* Ajustes para telas com pouca altura (Mobile Landscape) */
-        @media (max-height: 500px) {
-            .mobile-compact-padding { padding: 1rem !important; }
-            .mobile-compact-margin { margin-bottom: 0.5rem !important; }
-            .mobile-hide { display: none !important; }
         }
     </style>
 <script type="importmap">
@@ -75,11 +49,6 @@
 </script>
 </head>
 <body>
-    <div id="orientation-overlay">
-        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-4 animate-bounce"><rect width="20" height="12" x="2" y="6" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg>
-        <h1 class="text-2xl font-bold mb-2">Modo Paisagem Necessário</h1>
-        <p class="text-white/60">Por favor, gire o seu dispositivo para a horizontal para uma experiência de condução segura.</p>
-    </div>
     <div id="root"></div>
 </body>
 </html>
